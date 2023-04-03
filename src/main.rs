@@ -1,21 +1,26 @@
 
 mod net_helper;
+mod serial_helper;
+
+use net_helper::Net;
+use serial_helper::Serial;
 
 use std::io::{self, Write};
-use std::time::Duration;
-
-use local_ip_address::local_ip;
 
 fn main() {
-    let ports = serialport::available_ports().expect("No ports found!");
-    let net_ip = local_ip().unwrap();
+
+    let serial = Serial::new();
+    let net = Net::new();
+
+    let ports = serial.get_avail_port_name();
+    let net_ip = net.get_local_addr();
 
 
     println!("Serial Port List:");
     for p in ports {
-        println!("{}", p.port_name);
+        println!("{}", p);
     }
-
+    
     // let mut str_in = String::new();
     let mut comser_in = String::new();
     let mut baudrate_in = String::new();
@@ -38,10 +43,7 @@ fn main() {
         }
     };
 
-    let mut target_port = serialport::new(comser, baudrate)
-        .timeout(Duration::from_millis(10))
-        .open()
-        .expect("Failed to open port");
+    let mut target_port = serial.connection(comser, baudrate);
 
     loop {
         let mut str_read = String::new();
@@ -50,7 +52,7 @@ fn main() {
         let read_in = str_read.trim();
 
         if read_in == "UP" {
-            let str_name = "SEND ".to_owned() + &net_ip.to_string();
+            let str_name = "SEND ".to_owned() + &net_ip;
             target_port
                 .write(str_name.trim().as_bytes())
                 .expect("Write failed!");
