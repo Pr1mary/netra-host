@@ -13,7 +13,7 @@ impl Net {
         return local.to_string();
     }
 
-    pub fn getAllAddr(&self) {
+    pub fn get_all_addr(&self) {
         let ports = serialport::available_ports().expect("No ports found!");
         let net_intf = list_afinet_netifas().unwrap();
     
