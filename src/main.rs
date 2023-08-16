@@ -19,8 +19,6 @@ fn main() {
     let ports = serial.get_avail_port_name();
     let net_ip = net.get_local_addr();
 
-    let curr_os = (env::consts::OS).to_owned();
-
     println!("Serial Port List:");
     for p in ports {
         println!("{}", p);
