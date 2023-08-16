@@ -20,12 +20,6 @@ fn main() {
     let net_ip = net.get_local_addr();
 
     let curr_os = (env::consts::OS).to_owned();
-    
-    if curr_os == "windows" {
-        let mut file = fs::File::open("~/config.toml").expect("Failed to open file");
-        let mut contents = String::new();
-        file.read_to_string(&mut contents).expect("Failed to read file");
-    }
 
     println!("Serial Port List:");
     for p in ports {
