@@ -4,8 +4,8 @@ use serde::Deserialize;
 use std::env;
 use std::fs;
 use std::io::Read;
-use std::io::{self, Write};
-use std::path;
+// use std::io::{self, Write};
+// use std::path;
 
 #[derive(Debug, Deserialize)]
 struct ConfigFile {
@@ -21,36 +21,40 @@ struct Client {
 #[derive(Default)]
 pub struct Config {
     port: String,
-    baud: u32
+    baud: u32,
 }
 
 impl Config {
-
-    fn fetch_file(&self, file_path: String) -> String {
+    fn fetch_file(&self, file_path: String) -> Result<String, bool> {
         let mut data = String::new();
-        let mut file = fs::File::open(file_path)
-                .expect("Failed to open file");
-            file.read_to_string(&mut data)
-                .expect("Failed to read file");
-        return data;
+        let mut file = fs::File::open(file_path).expect("Failed to open file");
+        file.read_to_string(&mut data).expect("Failed to read file");
+        return Ok(data);
     }
 
-    pub fn init_config(&mut self) {
+    pub fn init_config(&mut self) -> Result<(), String> {
         let curr_os = (env::consts::OS).to_owned();
 
-        let mut conf_data = String::new();
+        let mut _conf_data = String::new();
 
         if curr_os == "windows" {
-            conf_data = self.fetch_file("C:/ProgramData/NetraProject/config.toml".to_owned());
-        }
-        if curr_os == "linux" {
-            conf_data = self.fetch_file("/config.toml".to_owned());
+            _conf_data = self
+                .fetch_file("C:/ProgramData/Netra/config.toml".to_owned())
+                .unwrap();
+        } else if curr_os == "linux" {
+            _conf_data = self
+                .fetch_file("/etc/netra/config.toml".to_owned())
+                .unwrap();
+        } else {
+            return Err("OS not supported".to_owned());
         }
 
-        let config: ConfigFile = toml::from_str(&conf_data).unwrap();
+        let config: ConfigFile = toml::from_str(&_conf_data).unwrap();
 
         self.port = config.client.port;
         self.baud = config.client.baud;
+
+        return Ok(());
     }
 
     pub fn get_port(&self) -> String {
