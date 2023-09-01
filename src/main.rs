@@ -49,6 +49,7 @@ fn main() {
                 .write(str_name.trim().as_bytes())
                 .expect("Write failed!");
             target_port.flush().expect("Error flush");
+            println!("UP confirmed");
         }
 
         if read_in == "STATUS" {
