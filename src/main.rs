@@ -13,7 +13,7 @@ fn main() {
 
     println!("Initialize config");
     config.init_config().expect("config init fail");
-    
+
     let client_port = config.get_port();
     let client_baud = config.get_baud();
 
@@ -43,22 +43,20 @@ fn main() {
 
         let read_in = str_read.trim();
 
-        if read_in == "UP" {
+        if read_in == "WHEREIP" {
             let str_name = "IP ".to_owned() + &net_ip;
             target_port
                 .write(str_name.trim().as_bytes())
                 .expect("Write failed!");
             target_port.flush().expect("Error flush");
-            println!("UP confirmed");
         }
 
         if read_in == "STATUS" {
-            let str_name = "OK".to_owned();
+            let str_name = "ALIVE".to_owned();
             target_port
                 .write(str_name.trim().as_bytes())
                 .expect("Write failed!");
             target_port.flush().expect("Error flush");
         }
-
     }
 }
