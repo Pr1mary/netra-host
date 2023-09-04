@@ -51,6 +51,14 @@ fn main() {
             target_port.flush().expect("Error flush");
         }
 
+        if read_in == "MOTD" {
+            let str_name = "MOTD ".to_owned()+"This is the best day of my life\n";
+            target_port
+                .write(str_name.trim().as_bytes())
+                .expect("Write failed!");
+            target_port.flush().expect("Error flush");
+        }
+
         if read_in == "STATUS" {
             let str_name = "ALIVE".to_owned();
             target_port
