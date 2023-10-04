@@ -37,14 +37,14 @@ impl Config {
 
         let mut _conf_data = String::new();
 
-        if curr_os == "windows" {
-            _conf_data = self
-                .fetch_file("C:/ProgramData/Netra/config.toml".to_owned())
-                .unwrap();
-        } else if curr_os == "linux" {
+        if curr_os == "linux" {
             _conf_data = self
                 .fetch_file("/etc/netra/config.toml".to_owned())
                 .unwrap();
+        // } else if curr_os == "windows" {
+        //     _conf_data = self
+        //         .fetch_file("C:/ProgramData/Netra/config.toml".to_owned())
+        //         .unwrap();
         } else {
             return Err("OS not supported".to_owned());
         }
