@@ -8,36 +8,7 @@ use daemon_helper::Daemon;
 use net_helper::Net;
 use serial_helper::Serial;
 
-fn process() {
-    let serial = Serial::new();
-    let net = Net::new();
-    let mut config = Config::default();
-
-    println!("Initialize config");
-    config.init_config().expect("config init fail");
-
-    let client_port = config.get_port();
-    let client_baud = config.get_baud();
-
-    let ports = serial.get_avail_port_name();
-    let net_ip = net.get_local_addr();
-
-    let mut port_search_fail = 0;
-
-    println!("Search for {}", client_port);
-    for p in ports.to_owned() {
-        if client_port == p {
-            break;
-        }
-        port_search_fail += 1;
-    }
-
-    if port_search_fail == ports.len() {
-        // panic!("Search port fail: \"{} not found\"", client_port);
-        eprintln!("Search port fail: \"{} not found\"", client_port);
-        return;
-    }
-
+fn process(serial: &Serial, client_port: String, client_baud: u32, net_ip: String) {
     println!("Connecting");
     let mut target_port = serial.connection(client_port, client_baud);
     println!("Client connected");
@@ -74,8 +45,44 @@ fn process() {
 }
 
 fn main() {
+    let serial = Serial::new();
+    let net = Net::new();
     let daemon = Daemon::new();
-    let daemon_res = daemon.daemonize(&process);
+    let mut config = Config::default();
+
+    println!("Init config");
+    config.init_config().expect("config init fail");
+
+    let client_port = config.get_port();
+    let client_baud = config.get_baud();
+
+    let ports = serial.get_avail_port_name();
+    let net_ip = net.get_local_addr();
+
+    let mut port_search_fail = 0;
+
+    println!("Search for {}", client_port);
+    for p in ports.to_owned() {
+        if client_port == p {
+            break;
+        }
+        port_search_fail += 1;
+    }
+
+    if port_search_fail == ports.len() {
+        eprintln!("Error: {} not found", client_port);
+        return;
+    }
+    println!("Port confirmed");
+
+    let daemon_res = daemon.daemonize(&|| {
+        process(
+            &serial,
+            client_port.to_owned(),
+            client_baud,
+            net_ip.to_owned(),
+        );
+    });
     if daemon_res.is_err() {
         eprintln!("Error: {}", daemon_res.unwrap_err());
     } else {
